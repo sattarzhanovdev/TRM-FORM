@@ -1,45 +1,41 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Запись на курс TRM</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TRM Запись</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
     body {
       margin: 0;
-      padding: 0;
-      background: linear-gradient(to right, #f9fafb, #eef2f7);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f3f4f6;
+      font-family: Arial, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
+      padding: 20px;
     }
     form {
       background: white;
       padding: 25px 20px;
-      border-radius: 16px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      border-radius: 14px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
       width: 100%;
-      max-width: 400px;
-      transition: 0.3s ease;
+      max-width: 420px;
     }
     h2 {
       margin-bottom: 10px;
       font-size: 22px;
       text-align: center;
-      color: #1f2937;
+      color: #111827;
     }
     label {
       font-size: 14px;
-      margin-top: 15px;
+      margin-top: 12px;
       display: block;
       color: #374151;
     }
-    input, select, button {
+    input, select, textarea, button {
       width: 100%;
       padding: 12px;
       margin-top: 6px;
@@ -47,18 +43,13 @@
       border-radius: 8px;
       font-size: 15px;
     }
-    input:focus, select:focus {
-      outline: none;
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
-    }
     button {
       margin-top: 20px;
       background-color: #3b82f6;
       color: white;
       font-weight: 600;
       border: none;
-      transition: 0.2s;
+      cursor: pointer;
     }
     button:hover {
       background-color: #2563eb;
@@ -70,74 +61,88 @@
       font-weight: 500;
       text-align: center;
     }
-
-    @media (max-width: 480px) {
-      form {
-        border-radius: 0;
-        height: 100vh;
-        justify-content: center;
-        box-shadow: none;
-        padding: 40px 20px;
-      }
-    }
   </style>
 </head>
 <body>
 
-<form id="trmForm">
-  <h2>Запись на TRM</h2>
-  <label for="name">ФИО:</label>
-  <input type="text" id="name" name="name" placeholder="Ваше имя полностью" required>
+<form id="bookingForm">
+  <h2>Форма записи TRM</h2>
 
-  <label for="phone">Телефон:</label>
-  <input type="tel" id="phone" name="phone" placeholder="+996..." required>
+  <label>ФИО:</label>
+  <input type="text" name="name" required>
 
-  <label for="date">Дата (ДД.ММ.ГГГГ):</label>
-  <input type="text" id="date" name="date" placeholder="01.06.2025" required>
+  <label>Телефон:</label>
+  <input type="tel" name="phone" required>
 
-  <label for="time">Время (ЧЧ:ММ):</label>
-  <input type="text" id="time" name="time" placeholder="15:00" required>
+  <label>Дата встречи:</label>
+  <input type="date" name="appointment_date" required>
 
-  <label for="assigned">Выберите специалиста:</label>
-  <select id="assigned" name="assigned">
-    <option value="Алина Турашева">Алина Турашева — руководитель TRM</option>
-    <option value="Абдутаир Мамажанов">Абдутаир Мамажанов — преподаватель по креативу</option>
+  <label>Время встречи:</label>
+  <input type="time" name="time" required>
+
+
+  <label>Тип оплаты:</label>
+  <select name="payment">
+    <option value="full">Полная</option>
+    <option value="partial">Частичная</option>
   </select>
 
-  <button type="submit">Записаться</button>
-  <div class="success" id="successMessage">✅ Вы успешно записаны!</div>
+  <label>Статус:</label>
+  <select name="status">
+    <option value="Бронь">Бронь</option>
+    <option value="Подтверждено">Подтверждено</option>
+    <option value="Отменено">Отменено</option>
+  </select>
+
+  <button type="submit">Отправить</button>
+  <div class="success" id="successMessage">✅ Успешно отправлено!</div>
 </form>
 
 <script>
-  document.getElementById("trmForm").addEventListener("submit", async function(e) {
-    e.preventDefault();
-    const form = e.target;
-    const data = {
-      name: form.name.value,
-      phone: form.phone.value,
-      appointment_date: form.date.value,
-      appointment_time: form.time.value,
-      assigned: form.assigned.value
-    };
+document.getElementById("bookingForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+  const form = e.target;
 
-    const webhookUrl = "https://n8n.yourdomain.com/webhook/trm-booking"; // Заменить на свой
+  const data = {
+    id: Date.now(), // Генерация ID
+    name: form.name.value,
+    phone: form.phone.value,
+    time: form.time.value,
+    date: form.appointment_date.value,
+    appointment_date: form.appointment_date.value,
+    appointment_time: "00:00:00",
+    services: [{
+        "name": "Обработать",
+        "assigned": "Даниел Саттаржанов",
+        "price": "2000",
+        "cabinet": "",
+        "time": "15:00"
+      },],
+    product: [],
+    payment: form.payment.value,
+    status: form.status.value
+  };
 
-    try {
-      const res = await fetch(webhookUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      });
-      if (res.ok) {
-        form.reset();
-        document.getElementById("successMessage").style.display = "block";
-      } else {
-        alert("Ошибка при отправке данных. Попробуйте позже.");
-      }
-    } catch (err) {
-      alert("Сетевая ошибка. Проверьте интернет.");
+  const url = "https://younodar.pythonanywhere.com/clients/clients/";
+
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+
+    if (res.ok) {
+      form.reset();
+      document.getElementById("successMessage").style.display = "block";
+    } else {
+      const err = await res.text();
+      alert("❌ Ошибка отправки: " + err);
     }
-  });
+  } catch (err) {
+    alert("❌ Сетевая ошибка: " + err.message);
+  }
+});
 </script>
 
 </body>
